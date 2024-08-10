@@ -1,0 +1,17 @@
+services:
+  pgvector:
+    container_name: pgdbvector
+    image: pgvector/pgvector:pg16
+    hostname: localhost
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: test_db_vector
+    volumes:
+      - pgvector-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgvector-data:
