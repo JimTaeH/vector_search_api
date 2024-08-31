@@ -77,3 +77,64 @@ def reset_word_tokenize(user_search_prompt=None):
     user_search_prompt_tokenize = " ".join(word_tokenize(user_search_prompt, engine="newmm"))
 
     return user_search_prompt_tokenize
+
+def response_formatting_frontend(response_query_set=None):
+    response_dict = {
+        "all_product": []
+    }
+
+    for response_query in response_query_set:
+        product_dict = {
+        "productID": "",
+        "name": "",
+        "price": 0.0,
+        "link": "",
+        "brand": "",
+        "image": "",
+        "description": ""
+        }
+
+        productID =response_query.vector_product_id
+        product_name = response_query.productName
+        product_price = response_query.price
+        product_link = response_query.link
+        product_brand = response_query.brand
+        product_image = response_query.image
+        product_desc = response_query.productDes
+
+        product_dict["productID"] = productID
+        product_dict["name"] = product_name[:100] + ". . ."
+        product_dict["price"] = product_price
+        product_dict["link"] = product_link
+        product_dict["brand"] = product_brand
+        product_dict["image"] = product_image
+        product_dict["description"] = product_desc
+
+        response_dict["all_product"].append(product_dict)
+
+    return response_dict
+
+def get_all_product():
+    all_product = Product.objects.all()
+
+    return all_product
+
+def get_product_to_compare_from_reactjs(productids_list=None):
+    product_ids_to_compare = []
+    for i in range(len(productids_list)):
+        product_id = productids_list[i]["productID"]
+        product_ids_to_compare.append(product_id)
+    
+    products_to_compare = Product.objects.filter(vector_product_id__in=product_ids_to_compare)
+
+    return products_to_compare
+
+def get_single_product_to_compare_from_reactjs(productid=None):
+    product_ids_to_compare = []
+    for i in range(len(productid)):
+        product_id = productid[i]
+        product_ids_to_compare.append(product_id)
+    
+    products_to_compare = Product.objects.filter(vector_product_id__in=product_ids_to_compare)
+
+    return products_to_compare

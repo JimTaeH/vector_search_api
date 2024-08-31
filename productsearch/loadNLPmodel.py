@@ -5,8 +5,10 @@ from simpletransformers.ner import NERModel
 def embeddings_model():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    tokenizer = AutoTokenizer.from_pretrained("../searchapi/nlpModels/embeddings_model/")
-    model = AutoModelForMaskedLM.from_pretrained("../searchapi/nlpModels/embeddings_model/")
+    tokenizer = AutoTokenizer.from_pretrained("../searchapi/nlpModels/embedding_recent/")
+    model = AutoModelForMaskedLM.from_pretrained("../searchapi/nlpModels/embedding_recent/")
+    # tokenizer = AutoTokenizer.from_pretrained("../searchapi/nlpModels/embeddings_model/")
+    # model = AutoModelForMaskedLM.from_pretrained("../searchapi/nlpModels/embeddings_model/")
 
     model.to(device)
 

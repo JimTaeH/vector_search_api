@@ -4,7 +4,7 @@ from .models import Product
 from tqdm import tqdm
 
 def run():
-    csv_fpath = "productData/lazada_womenwear_clean2.csv"
+    csv_fpath = "productData/lazada_womenwear_clean2_nodup.csv"
     df = pd.read_csv(csv_fpath)
     df = df[["productName", "productDes", "link", 
              "price", "image", "sold_units", 

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-__b2gjnmch49tmz+(f$7-hj_3j$1+vi^#qsqiz7a6gu@l57ixt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*", "35.224.249.178"]
+ALLOWED_HOSTS = ["35.224.124.232"]
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'productsearch',
     'django_extensions',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -89,7 +90,7 @@ DATABASES = {
         'NAME': 'test_db_vector', 
         'USER': 'admin',
         'PASSWORD': 'root',
-        'HOST': '35.224.249.178', 
+        'HOST': '35.224.124.232', 
         'PORT': '5432',
     }
 }
@@ -135,3 +136,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ORIGIN_WHITELIST = [
+     'http://35.224.124.232:3000'
+]

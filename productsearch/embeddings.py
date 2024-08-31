@@ -1,5 +1,4 @@
-from .models import Product, NameEmbeddings, DescEmbeddings
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from .models import Product, NameEmbeddingsNew, DescEmbeddingsNew
 from .loadNLPmodel import embeddings_model
 import torch
 from pythainlp import word_tokenize
@@ -27,6 +26,13 @@ def split_documents(documents):
 
     return all_chunks
 
+#Mean Pooling - Take attention mask into account for correct averaging
+def mean_pooling(model_output, attention_mask):
+    token_embeddings = model_output[0] #First element of model_output contains all token embeddings
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+
+    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+
 def createEmbeddings(text=None, model=None, tokenizer=None):
     input_tokenize = tokenizer(text, 
                                padding="max_length", 
@@ -34,6 +40,8 @@ def createEmbeddings(text=None, model=None, tokenizer=None):
                                max_length=512, return_tensors="pt")
     with torch.no_grad():
         text_embedd = model.bert(**input_tokenize).last_hidden_state[:, 0, :].detach().cpu().numpy()
+        # text_embedd = model(**input_tokenize)
+        # text_embedd = mean_pooling(text_embedd, input_tokenize['attention_mask'])
 
     return text_embedd
 
@@ -49,7 +57,7 @@ def run():
         productName_embedd = createEmbeddings(text=productName, 
                                               model=model, 
                                               tokenizer=tokenizer)
-        name_embedd = NameEmbeddings(
+        name_embedd = NameEmbeddingsNew(
             product=product,
             embedding_name = productName_embedd[0],
         )
@@ -69,7 +77,7 @@ def run():
 
         # Store embeddings and link to products
         for text, desc_embedding in zip(descs, desc_embeddings):
-            embedding_entry = DescEmbeddings(
+            embedding_entry = DescEmbeddingsNew(
                 product=product,
                 embedding_desc=desc_embedding,
                 document=text.page_content

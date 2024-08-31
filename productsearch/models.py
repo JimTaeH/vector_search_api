@@ -70,3 +70,33 @@ class DescEmbeddings(models.Model):
             )
         ]
 
+class NameEmbeddingsNew(models.Model):
+    product = models.ForeignKey(Product, models.DO_NOTHING)
+    embedding_name = VectorField(dimensions=384, null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            HnswIndex(
+                name='pname_new_index',
+                fields=['embedding_name'],
+                m=16,
+                ef_construction=64,
+                opclasses=['vector_l2_ops']
+            )
+        ]
+
+class DescEmbeddingsNew(models.Model):
+    product = models.ForeignKey(Product, models.DO_NOTHING)
+    embedding_desc = VectorField(dimensions=384, null=True, blank=True)
+    document = models.CharField(blank=True, null=True, max_length=1000)
+
+    class Meta:
+        indexes = [
+            HnswIndex(
+                name='pdesc_new_index',
+                fields=['embedding_desc'],
+                m=16,
+                ef_construction=64,
+                opclasses=['vector_l2_ops']
+            )
+        ]

@@ -6,7 +6,7 @@ from .util import (from_prediction,
 from .word_dict import MyDictionary
 import re
 from django.db.models import Avg
-from .models import Product, NameEmbeddings, DescEmbeddings
+from .models import Product, NameEmbeddings, DescEmbeddings, NameEmbeddingsNew, DescEmbeddingsNew
 from pgvector.django import CosineDistance
 from .embeddings import createEmbeddings
 from scipy.spatial import distance
@@ -28,7 +28,7 @@ def filter_product_by_price(price, my_dict, words_about_price, words_about_brand
 
 def filter_product_by_name(product_name_list=None, product_by_price=None):
     # product_name = "".join(product_name_list)
-    product_name = product_name_list[0]
+    product_name = product_name_list[-1]
     product_by_name = product_by_price.filter(productName__contains=product_name)
 
     return product_by_name
@@ -93,6 +93,10 @@ def embedding_first_text_filter_later(user_query=None):
     words_about_product, list_product = from_prediction(NER_prompt_prediction,'0')
     str_about_product = " ".join(words_about_product)
     
+    print(words_about_product)
+    print(words_about_price)
+    print(words_about_brand)
+
     user_query = user_query.replace(" ", "")
     user_query_cut_price = user_query.replace(str_about_price, "").strip()
     user_query_cut_price = reset_word_tokenize(user_search_prompt=user_query_cut_price)
@@ -107,7 +111,7 @@ def embedding_first_text_filter_later(user_query=None):
                                                words_about_price=words_about_price, 
                                                words_about_brand=words_about_brand)
     
-    product_name_embedd_filter = NameEmbeddings.objects.filter(product_id__in=product_by_price)
+    product_name_embedd_filter = NameEmbeddingsNew.objects.filter(product_id__in=product_by_price)
 
     product_name_embedd_similarity = product_name_embedd_filter.order_by(CosineDistance('embedding_name', 
                                                                                         user_search_prompt_embedd[0]))[0:30]
@@ -119,24 +123,24 @@ def embedding_first_text_filter_later(user_query=None):
                                                                  user_search_prompt_embedd=user_search_prompt_embedd)
     
     print(desc_embeddings_similarity_df.shape)
-    product_desc_embedd_similarity = DescEmbeddings.objects.filter(product_id__in=desc_embeddings_similarity_df["product_id"].values.tolist())
+    product_desc_embedd_similarity = DescEmbeddingsNew.objects.filter(product_id__in=desc_embeddings_similarity_df["product_id"].values.tolist())
 
     filter_by_desc_embedd_product_id = [x.product_id for x in product_desc_embedd_similarity]
     filter_by_desc_embedd_product_id = set(filter_by_desc_embedd_product_id)
 
     product_filter_by_embedd = Product.objects.filter(vector_product_id__in=filter_by_desc_embedd_product_id)
 
-    print(list_product)
-    product_by_name = filter_product_by_name(product_name_list=list_product, 
-                                             product_by_price=product_filter_by_embedd)
+    # print(list_product)
+    # # product_by_name = filter_product_by_name(product_name_list=list_product, 
+    # #                                          product_by_price=product_filter_by_embedd)
     
-    search_response = response_formatting(response_query_set=product_filter_by_embedd)
+    # search_response = response_formatting(response_query_set=product_filter_by_embedd)
 
-    response = {
-        "results": search_response
-    }
+    # response = {
+    #     "results": search_response
+    # }
 
-    return response
+    return product_filter_by_embedd
 
 def supersearch(user_query=None):
     user_search_prompt_embedd = createEmbeddings(text=user_query, 
